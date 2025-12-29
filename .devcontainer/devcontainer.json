@@ -1,0 +1,33 @@
+{
+  "name": "Household App Frontend",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "frontend-dev",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "formulahendry.auto-rename-tag"
+      ],
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go",
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  },
+  "forwardPorts": [3000, 8080],
+  "postCreateCommand": "go mod download",
+  "remoteUser": "root"
+}
