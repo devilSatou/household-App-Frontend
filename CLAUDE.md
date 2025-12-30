@@ -2,38 +2,57 @@
 
 ## プロジェクト概要
 
-Go + Gin + HTMX + Alpine.js + SQLite で作る家計簿Webアプリケーション。
-API駆動設計で、将来的にスマホアプリ対応も視野に入れている。
-
-ここはfront側のプロジェクト
-バックエンドの実装はhousehold-App-APIを参照すること
+React + TypeScript + Vite で作る家計簿WebアプリケーションのSPA（Single Page Application）フロントエンド。
+バックエンドAPIと完全分離し、モダンなWeb開発のベストプラクティスに従った実装。
 
 ## 技術スタック
 
-- **バックエンド**: Go 1.21+ / Gin / GORM / SQLite3
-- **フロントエンド**: HTMX / Alpine.js / Bootstrap 5 / Chart.js（すべてCDN経由）
-- **インフラ**: Docker / Docker Compose / DevContainer
-- **本番環境**: GCP Compute Engine (e2-micro 無料枠)
+- **フロントエンド**: React 18 / TypeScript / Vite
+- **状態管理**: React Hooks (useState, useContext等)
+- **API通信**: Fetch API / Axios（後で追加予定）
+- **ルーティング**: React Router（後で追加予定）
+- **スタイリング**: CSS Modules / Tailwind CSS（後で追加予定）
+- **デプロイ**: Vercel / Netlify（無料）
 
-## データベース設計
+## バックエンドAPI
 
-**DBファイル分離によるユーザー分離**を採用（詳細: `docs/DATABASE_DESIGN.md`）
+このプロジェクトは **フロントエンドのみ** で、バックエンドは別リポジトリ：
+- リポジトリ: `household-App-API`
+- 技術: Go + Gin + GORM + SQLite
+- 認証: JWT（予定）
 
-```
-data/
-├── app.db                    # 共通DB（users テーブル）
-└── users/{id}/household.db   # ユーザー専用DB（transactions, categories）
-```
-
-- WHERE句でのフィルタではなく、DBファイル自体を分離
-- 各テーブルにuser_idは不要
-
-## API エンドポイント
+## プロジェクト構造（予定）
 
 ```
-GET    /health                       # ヘルスチェック
+household-App-Frontend/
+├── src/
+│   ├── components/      # 再利用可能なコンポーネント
+│   │   ├── Layout/      # レイアウトコンポーネント
+│   │   ├── TransactionList/
+│   │   └── CategoryChart/
+│   ├── pages/           # ページコンポーネント
+│   │   ├── Dashboard.tsx
+│   │   ├── Transactions.tsx
+│   │   └── Categories.tsx
+│   ├── api/             # API通信ロジック
+│   │   └── client.ts    # APIクライアント
+│   ├── hooks/           # カスタムフック
+│   │   └── useTransactions.ts
+│   ├── types/           # TypeScript型定義
+│   │   └── index.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+└── CLAUDE.md            # このファイル
+```
 
-GET    /api/v1/transactions          # 一覧（ページネーション対応）
+## API エンドポイント（バックエンド）
+
+```
+GET    /api/v1/transactions          # 一覧
 POST   /api/v1/transactions          # 新規作成
 GET    /api/v1/transactions/:id      # 詳細
 PUT    /api/v1/transactions/:id      # 更新
@@ -51,7 +70,83 @@ GET    /api/v1/export/csv            # CSV出力
 
 ## 設計方針
 
-1. **セキュリティ重視**: npm依存を避け、フロントエンドはCDN経由
-2. **環境汚染回避**: すべてDockerコンテナ内で完結
-3. **SQLite使用**: GCP無料枠活用、ファイルベースで管理が楽
-4. **API First**: フロントエンドとバックエンドを分離
+1. **モダンなSPA構成**: React + TypeScriptで型安全な実装
+2. **API First**: バックエンドAPIと完全分離、将来的にスマホアプリ対応も可能
+3. **セキュリティ重視**: XSS/CSRF対策、JWT認証
+4. **パフォーマンス**: コード分割、遅延ロード、メモ化
+5. **保守性**: コンポーネント設計、型定義、テスト
+
+## 開発
+
+### セットアップ
+
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバー起動
+npm run dev
+
+# http://localhost:5173 にアクセス
+```
+
+### ビルド
+
+```bash
+# 本番ビルド
+npm run build
+
+# ビルド結果のプレビュー
+npm run preview
+```
+
+## デプロイ
+
+### Vercel（推奨）
+
+```bash
+# Vercelにデプロイ
+npm install -g vercel
+vercel
+```
+
+### Netlify
+
+```bash
+# Netlifyにデプロイ
+npm install -g netlify-cli
+netlify deploy
+```
+
+## 環境変数
+
+`.env` ファイルを作成してバックエンドAPIのURLを設定：
+
+```
+VITE_API_URL=http://localhost:8080
+```
+
+本番環境では、Vercel/Netlifyの環境変数設定で `VITE_API_URL` を設定。
+
+## TODO
+
+- [ ] React Routerの導入
+- [ ] API通信ロジックの実装
+- [ ] 状態管理の実装（Context API or Zustand）
+- [ ] 認証機能（JWT）
+- [ ] ダッシュボードUI実装
+- [ ] 収支一覧UI実装
+- [ ] カテゴリ管理UI実装
+- [ ] レスポンシブデザイン
+- [ ] ダークモード対応
+- [ ] テスト実装（Vitest + React Testing Library）
+
+## 移行履歴
+
+- **2025年**: Go + HTMX版からReact + TypeScript版に移行
+  - 理由: 静的ファイルとしてVercelにデプロイするため
+  - JWT認証をバックエンド側に集約し、フロントを完全SPA化
+
+## ライセンス
+
+MIT

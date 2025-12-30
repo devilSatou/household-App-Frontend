@@ -1,79 +1,63 @@
 # 家計簿アプリ - フロントエンド
 
-Go + Gin + HTMX + Alpine.js + Bootstrap 5 で構築された家計簿Webアプリケーションのフロントエンド。
+React + TypeScript + Vite で構築された家計簿WebアプリケーションのSPAフロントエンド。
 
 ## 技術スタック
 
-- **サーバー**: Go 1.21+ / Gin
-- **UI**: HTMX / Alpine.js / Bootstrap 5 / Chart.js（すべてCDN経由）
-- **インフラ**: Docker / Docker Compose / DevContainer
+- **フレームワーク**: React 18 / TypeScript
+- **ビルドツール**: Vite
+- **スタイリング**: CSS（Tailwind CSS 導入予定）
+- **デプロイ**: Vercel
 
 ## クイックスタート
 
-### 開発環境（Docker Compose）
-
-```bash
-# 開発モードで起動（API + Frontend）
-docker compose --profile dev up
-
-# フロントエンド: http://localhost:3000
-# API: http://localhost:8080
-```
-
-### ローカル実行
+### 開発環境
 
 ```bash
 # 依存関係のインストール
-go mod download
+npm install
 
-# APIサーバーを別ターミナルで起動しておく
-# cd ../household-App-API && go run .
+# 開発サーバー起動
+npm run dev
 
-# フロントエンド起動
-go run .
-
-# http://localhost:3000 にアクセス
+# http://localhost:5173 にアクセス
 ```
 
 ### 本番ビルド
 
 ```bash
-# Dockerイメージのビルド
-docker compose build
+# ビルド
+npm run build
 
-# 起動
-docker compose up -d
+# プレビュー
+npm run preview
 ```
 
 ## プロジェクト構造
 
 ```
 household-App-Frontend/
-├── main.go                 # エントリーポイント（サーバー + APIプロキシ）
-├── go.mod / go.sum         # Go依存管理
-├── Dockerfile              # コンテナ定義
-├── docker-compose.yml      # 開発・本番環境設定
-├── .devcontainer/          # VS Code DevContainer設定
-├── templates/
-│   ├── index.html          # メインHTML（SPA的構成）
-│   └── pages/
-│       ├── dashboard.html  # ダッシュボード
-│       ├── transactions.html # 収支一覧
-│       └── categories.html # カテゴリ管理
-└── static/
-    ├── css/
-    │   └── style.css       # カスタムスタイル
-    └── js/
-        └── app.js          # Alpine.jsアプリケーション
+├── src/
+│   ├── components/      # 再利用可能なコンポーネント
+│   ├── pages/           # ページコンポーネント
+│   ├── api/             # API通信ロジック
+│   ├── hooks/           # カスタムフック
+│   ├── types/           # TypeScript型定義
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+└── CLAUDE.md
 ```
 
-## 機能
+## 機能（予定）
 
 ### ダッシュボード
 - 月次収支サマリー（収入・支出・残高）
-- 今月の収支グラフ（ドーナツチャート）
-- カテゴリ別支出グラフ（パイチャート）
-- 年間推移グラフ（棒グラフ）
+- カテゴリ別支出グラフ
+- 年間推移グラフ
 - 最近の取引一覧
 
 ### 収支一覧
@@ -88,50 +72,37 @@ household-App-Frontend/
 
 ## 環境変数
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| GIN_MODE | Ginの動作モード | debug |
-| PORT | サーバーポート | 3000 |
-| API_URL | バックエンドAPIのURL | http://localhost:8080 |
+`.env` ファイルを作成：
+
+```
+VITE_API_URL=http://localhost:8080
+```
 
 ## アーキテクチャ
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│   ブラウザ      │────▶│  フロントエンド  │────▶│      API        │
-│   (HTMX/Alpine) │     │  (Go/Gin:3000)  │     │  (Go/Gin:8080)  │
-│                 │◀────│                 │◀────│                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                              │
-                              ▼
-                        ┌───────────┐
-                        │  静的     │
-                        │ ファイル  │
-                        │ (CDN)    │
-                        └───────────┘
+┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │
+│   ブラウザ      │────▶│      API        │
+│   (React SPA)   │     │  (Go/Gin:8080)  │
+│                 │◀────│                 │
+└─────────────────┘     └─────────────────┘
+        │
+        ▼
+  ┌───────────┐
+  │  Vercel   │
+  │  (静的)   │
+  └───────────┘
 ```
 
-- **HTMX**: サーバーサイドレンダリングによる部分更新
-- **Alpine.js**: クライアントサイドの軽量インタラクション
-- **APIプロキシ**: フロントエンドサーバーがAPIリクエストを中継
+- **React SPA**: クライアントサイドレンダリング
+- **JWT認証**: バックエンドAPIで認証、トークンをlocalStorageで管理
+- **API通信**: Fetch API / Axios
 
-## 開発
+## 移行履歴
 
-### テンプレート関数
-
-| 関数 | 説明 |
-|------|------|
-| `formatNumber` | 数値を3桁区切りでフォーマット |
-| `formatDate` | 日付をYYYY/MM/DD形式でフォーマット |
-| `toJSON` | オブジェクトをJSON文字列に変換 |
-
-### HTMXイベント
-
-| イベント | 説明 |
-|----------|------|
-| `transactionsUpdated` | 取引が追加/更新/削除された時に発火 |
-| `categoriesUpdated` | カテゴリが追加された時に発火 |
+- **2025年**: Go + HTMX版からReact + TypeScript版に移行
+  - 理由: Vercelへの静的デプロイのため、フロントを完全SPA化
 
 ## ライセンス
 
