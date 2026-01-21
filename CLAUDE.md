@@ -19,7 +19,10 @@ React + TypeScript + Vite で作る家計簿WebアプリケーションのSPA（
 このプロジェクトは **フロントエンドのみ** で、バックエンドは別リポジトリ：
 - リポジトリ: `household-App-API`
 - 技術: Go + Gin + GORM + SQLite
-- 認証: JWT（予定）
+- 認証: JWT
+
+APIの仕様書は下記URLを参照すること
+https://gist.github.com/devilSatou/cbd7beb034a8caa2ff50ba28d41a3781
 
 ## プロジェクト構造（予定）
 
