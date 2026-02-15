@@ -139,8 +139,12 @@ class ApiClient {
   }
 
   // Summary endpoints
-  async getMonthlySummary(): Promise<ApiResponse<MonthlySummary[]>> {
-    return this.request<ApiResponse<MonthlySummary[]>>('/api/v1/summary/monthly');
+  async getMonthlySummary(year?: number, month?: number): Promise<ApiResponse<MonthlySummary[]>> {
+    const params = new URLSearchParams();
+    if (year) params.set('year', year.toString());
+    if (month) params.set('month', month.toString());
+    const query = params.toString();
+    return this.request<ApiResponse<MonthlySummary[]>>(`/api/v1/summary/monthly${query ? `?${query}` : ''}`);
   }
 
   async getCategorySummary(startDate?: string, endDate?: string): Promise<ApiResponse<CategorySummary[]>> {
@@ -151,8 +155,9 @@ class ApiClient {
     return this.request<ApiResponse<CategorySummary[]>>(`/api/v1/summary/category${query ? `?${query}` : ''}`);
   }
 
-  async getYearlySummary(): Promise<ApiResponse<YearlySummary[]>> {
-    return this.request<ApiResponse<YearlySummary[]>>('/api/v1/summary/yearly');
+  async getYearlySummary(year?: number): Promise<ApiResponse<YearlySummary[]>> {
+    const params = year ? `?year=${year}` : '';
+    return this.request<ApiResponse<YearlySummary[]>>(`/api/v1/summary/yearly${params}`);
   }
 
   // Export

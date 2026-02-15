@@ -32,6 +32,12 @@ export function Header() {
                 収支一覧
               </Link>
               <Link
+                to="/monthly"
+                className="text-gray-600 hover:text-gray-900 font-medium"
+              >
+                月別レポート
+              </Link>
+              <Link
                 to="/categories"
                 className="text-gray-600 hover:text-gray-900 font-medium"
               >
