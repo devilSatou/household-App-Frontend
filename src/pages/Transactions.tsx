@@ -30,6 +30,8 @@ export function Transactions() {
   const [formData, setFormData] = useState<TransactionFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filterType, setFilterType] = useState<CategoryType | ''>('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const limit = 20;
@@ -40,13 +42,15 @@ export function Transactions() {
         limit,
         offset,
         type: filterType || undefined,
+        start_date: startDate || undefined,
+        end_date: endDate || undefined,
       });
       setTransactions(response.data || []);
       setTotal(response.total || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : '取引の取得に失敗しました');
     }
-  }, [offset, filterType]);
+  }, [offset, filterType, startDate, endDate]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -154,7 +158,11 @@ export function Transactions() {
 
   const handleExport = async () => {
     try {
-      const blob = await apiClient.exportCSV({ type: filterType || undefined });
+      const blob = await apiClient.exportCSV({
+        type: filterType || undefined,
+        start_date: startDate || undefined,
+        end_date: endDate || undefined,
+      });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -204,20 +212,58 @@ export function Transactions() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex gap-4 items-center">
-          <label className="text-sm font-medium text-gray-700">種別:</label>
-          <select
-            value={filterType}
-            onChange={(e) => {
-              setFilterType(e.target.value as CategoryType | '');
-              setOffset(0);
-            }}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">すべて</option>
-            <option value="income">収入</option>
-            <option value="expense">支出</option>
-          </select>
+        <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">種別</label>
+            <select
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value as CategoryType | '');
+                setOffset(0);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">すべて</option>
+              <option value="income">収入</option>
+              <option value="expense">支出</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">開始日</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setOffset(0);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">終了日</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setOffset(0);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          {(startDate || endDate) && (
+            <button
+              onClick={() => {
+                setStartDate('');
+                setEndDate('');
+                setOffset(0);
+              }}
+              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+            >
+              期間をクリア
+            </button>
+          )}
         </div>
       </div>
 
