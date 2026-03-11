@@ -31,11 +31,11 @@ export function MonthlyReport() {
     setCategorySummary([]);
     setMonthTransactions([]);
     try {
-      const res = await apiClient.getMonthlySummary(year);
-      const data = res.data || [];
+      const res = await apiClient.getYearlySummary(year);
+      const data = res.monthly || [];
       // Fill all 12 months, using zeros for months without data
       const filled: MonthlySummary[] = Array.from({ length: 12 }, (_, i) => {
-        const found = data.find((s) => s.year === year && s.month === i + 1);
+        const found = data.find((s) => s.month === i + 1);
         return found || { year, month: i + 1, income: 0, expense: 0, balance: 0 };
       });
       setMonthlySummaries(filled);

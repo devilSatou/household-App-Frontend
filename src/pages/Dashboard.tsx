@@ -19,12 +19,8 @@ export function Dashboard() {
           apiClient.getTransactions({ limit: 5 }),
         ]);
 
-        // Get current month summary
-        const now = new Date();
-        const currentMonth = monthlyRes.data?.find(
-          (s) => s.year === now.getFullYear() && s.month === now.getMonth() + 1
-        );
-        setMonthlySummary(currentMonth || { year: now.getFullYear(), month: now.getMonth() + 1, income: 0, expense: 0, balance: 0 });
+        // API returns a single MonthlySummary object (current month by default)
+        setMonthlySummary(monthlyRes);
         setCategorySummary(categoryRes.data || []);
         setRecentTransactions(transactionsRes.data || []);
       } catch (err) {
